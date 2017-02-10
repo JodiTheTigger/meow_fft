@@ -82,6 +82,12 @@ out what FFTs you are going to use, and then benchmark various compiler options
 for your target platforms in order to get any useful compiler based performance
 increases.
 
+License
+=======
+
+`meow_fft.h` is licensed under the 0-clause BSD license. All other code and
+documents are licensed under the AGPLv3 license.
+
 Why?
 ====
 
