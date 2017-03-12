@@ -7,6 +7,19 @@ By Richard Maxwell
 
 A simple, C99, header only, 0-Clause BSD Licensed, fast fourier transform (FFT).
 
+*BROKEN*
+========
+Oh no!
+I found some big issues!
+
+* meow_fft doesn't reorder the fft for the real<->complex fft properly.
+  (although real->fft->real seems to work fine)
+* I was using FFTW3 Hartley transforms instead of real->FFT transforms for 
+  my benchmarks so the fftw3 benchmarks are incorrect.
+  
+I'm currently updating my tests so I can properly fix the reording issues. For now
+If you need an small fft library I suggest pfft or kiss_fft.
+
 Example
 =======
 
