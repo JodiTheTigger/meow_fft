@@ -71,8 +71,28 @@ the memory requirements required by the workset.
 
 All functions are namespaced with `meow_` and all Types by `Meow_`.
 
-Notes on performance
---------------------
+
+Why?
+====
+I thought I could write a faster FFT that kiss_fft, since I couldn't use FFTW3
+due to its GPL license. LOL, If I knew about the pffft library, I would have
+just used that instead.
+
+`¯\_(ツ)_/¯`
+
+Performance
+===============
+
+* This FFT is for people who want a single file FFT implementation without any
+licensing headaches and are not concerned with having the fastest performance.
+
+* This FFT is for people wanting to know how a fft is written using a _simple-ish_
+  implementation
+* It doesn't explicitly use vectorised instructions (SSE, NEON, AVX)
+* It is faster than kiss_fft only due to using a radix-8 kernel
+* It is slower than pffft, muFFT, vDSP, FFTW and other accelerated FFT libraries
+* It is slower than anything on the GPU
+* It has not been tested _on_ a GPU
 
 I found changing compiler flags can make the FFT go faster _or_ slower depending
 on what you want to do. For example, using gcc with `-march=native` on my i7
@@ -82,20 +102,6 @@ out what FFTs you are going to use, and then benchmark various compiler options
 for your target platforms in order to get any useful compiler based performance
 increases.
 
-License
-=======
-
-`meow_fft.h` is licensed under the 0-clause BSD license. All other code and
-documents are licensed under the AGPLv3 license.
-
-Why?
-====
-
-I thought I could write a faster FFT that kiss_fft, since I couldn't use FFTW3
-due to its GPL license. LOL, If I knew about the pffft library, I would have
-just used that instead.
-
-`¯\_(ツ)_/¯`
 
 Reading List
 ============
@@ -114,6 +120,8 @@ Reading List
   to start making them cache friendly to get any extra speed.
   https://math.mit.edu/~stevenj/18.335/FFTW-Alan-2008.pdf
 
+* Hmm, how is it done on GPUs? 
+  http://mc.stanford.edu/cgi-bin/images/7/75/SC08_FFT_on_GPUs.pdf
 
 FFT Implementation
 ==================
@@ -176,6 +184,9 @@ FFT. This was done 5 times and the median value was reported.
 Results for meow_fft, kiss_fft, fftw3 and pffft were taken. fftw was not tested
 on the ARM platform. Some tests for pffftw were skipped due to lack of support
 for certain values of N. pffft uses SSE/NEON vector CPU instructions.
+
+*NOTE* FFTW3 results are currently wrong as its using hartly instead of real
+FFT transform. Updated benchmarks are pending...
 
 Results
 -------
@@ -297,3 +308,9 @@ Other FFT Implementations
 
 * FFTS     (MIT) : I couldn't get it to compile :-(
   https://github.com/anthonix/ffts
+  
+* muFFT    (MIT) : SSE, SSE3, AVX-256
+  https://github.com/Themaister/muFFT
+  
+* GPU_FFT (3-BSD): GPU accelerated FFT for Rasberry Pi
+  http://www.aholme.co.uk/GPU_FFT/Main.htm
