@@ -2113,7 +2113,7 @@ void inline meow_mixer
     {
         Complex x_k           = in[k];
         Complex x_n_2_minus_k = meow_conjugate(in[N_2 - k]);
-        Complex wk            = w_2n[k];
+        Complex wk            = meow_conjugate(w_2n[k]);
 
         Complex za = meow_add(x_k, x_n_2_minus_k);
         Complex zb = meow_sub(x_k, x_n_2_minus_k);
@@ -2148,7 +2148,7 @@ void inline meow_mixer_i
     {
         Complex x_k           = in[k];
         Complex x_n_2_minus_k = meow_conjugate(in[N_2 - k]);
-        Complex wk            = meow_conjugate(w_2n[k]);
+        Complex wk            = w_2n[k];
 
         Complex za = meow_add(x_k, x_n_2_minus_k);
         Complex zb = meow_sub(x_k, x_n_2_minus_k);
