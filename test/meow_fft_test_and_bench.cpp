@@ -352,22 +352,183 @@ int main(int argc, char**)
         // Data from:
         // http://stackoverflow.com/questions/25735153/plotting-a-fast-fourier-transform-in-python
         let size = test_data.size();
-        if (!profiling)
+        for (unsigned i = 0; i < size; ++i)
         {
             for (unsigned i = 0; i < size; ++i)
             {
-                for (unsigned i = 0; i < size; ++i)
-                {
-                    let two_pi_i = 2.0f * M_PI * i;
+                let two_pi_i = 2.0f * M_PI * i;
 
-                    test_data[i] =
-                          1.0f * sin(50.0f * two_pi_i * (1.0f / 799.0f))
-                        + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f));
-                }
+                test_data[i] =
+                      1.0f * sin(50.0f * two_pi_i * (1.0f / 799.0f))
+                    + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f));
             }
         }
 
-        printf("Testing real only fft (skipping slow ffts)...\n");
+        // ---------------------------------------------------------------------
+
+        // First test, forward fft. Test up to 3 stage.
+        printf("Testing real -> fft against reference...\n");
+        fflush(stdout);
+
+        let near = [](float lhs, float rhs) -> bool
+        {
+            return abs(lhs - rhs) < 0.0001f;
+        };
+
+        for (unsigned i = 4; i < 65; i += 2)
+        {
+            // Meow ------------------------------------------------------------
+            var fft_meow = vector<Meow_FFT_Complex>(i);
+            var fft_meow_a = fft_meow.data();
+
+            let plan_meow_bytes = meow_fft_generate_workset_real(i, nullptr);
+
+            Meow_FFT_Workset_Real* plan_meow =
+                (Meow_FFT_Workset_Real*) malloc(plan_meow_bytes);
+
+            meow_fft_generate_workset_real(i, plan_meow);
+            meow_fft_real(plan_meow, test_data.data(), fft_meow_a);
+
+            free(plan_meow);
+
+            // Kiss ------------------------------------------------------------
+            var fft_kiss = vector<Meow_FFT_Complex>(i);
+            var fft_kiss_a = reinterpret_cast<kiss_fft_cpx*>(fft_kiss.data());
+
+            let plan_kiss = kiss_fftr_alloc(i, 0, NULL, NULL);
+            kiss_fftr(plan_kiss, test_data.data(), fft_kiss_a);
+
+            kiss_fftr_free(plan_kiss);
+
+            // Pfft ------------------------------------------------------------
+            float* fft_pfft_a = nullptr;
+
+            if (!(i % 32))
+            {
+                let plan_pfft  = pffft_new_setup(i, PFFFT_REAL);
+
+                fft_pfft_a = (float*) pffft_aligned_malloc
+                (
+                    sizeof(float) * 2 * i
+                );
+
+                pffft_transform_ordered
+                (
+                      plan_pfft
+                    , test_data.data()
+                    , fft_pfft_a
+                    , NULL
+                    , PFFFT_FORWARD
+                );
+            }
+
+            // FFTW ------------------------------------------------------------
+            float* fft_fftw_a = nullptr;
+
+#ifdef TEST_WITH_FFTW3
+            // for some reason fftw stomps over the input array when you make
+            // the plan.
+            var* copy  = (float*) fftwf_malloc(sizeof(float) * i);
+            fft_fftw_a = (float*) fftwf_malloc(sizeof(float) * i * 2);
+
+            let plan_fftw = fftwf_plan_dft_r2c_1d
+            (
+                  i
+                , copy
+                , (fftwf_complex*) fft_fftw_a
+                , FFTW_MEASURE
+            );
+
+            memcpy(copy, test_data.data(), i * sizeof(float));
+
+            fftwf_execute(plan_fftw);
+            fftwf_free(copy);
+
+            fftwf_destroy_plan(plan_fftw);
+#else
+            auto fftwf_free = [](void*) {};
+#endif
+
+
+            // and now compare, but not the first and last item as
+            // they are ignored and packed.
+            unsigned failed = 0;
+            unsigned j;
+            for (j = 1; j < (i / 2); j++)
+            {
+                if (!near(fft_meow_a[j].r, fft_kiss_a[j].r))
+                {
+                    failed = 1;
+                }
+
+                if (!near(fft_meow_a[j].j, fft_kiss_a[j].i))
+                {
+                    failed = 2;
+                }
+
+                if (fft_fftw_a)
+                {
+                    if (!near(fft_meow_a[j].r, fft_fftw_a[j * 2]))
+                    {
+                        failed = 1;
+                    }
+                    if (!near(fft_meow_a[j].j, fft_fftw_a[j * 2 + 1]))
+                    {
+                        failed = 2;
+                    }
+                }
+
+                if (failed) { break; }
+            }
+
+            if (failed)
+            {
+                auto dump = [i](const char* name, float* source, unsigned im)
+                {
+                    if (source)
+                    {
+                        printf("\n%s, ", name);
+                        for (unsigned j = 0; j < (i / 2); j++)
+                        {
+                            printf("%10.7f, ", source[im + (j * 2)]);
+                        }
+                    }
+                };
+
+                printf
+                (
+                      "Failed at N %d, index %d (%s)\n"
+                    , i
+                    , j
+                    , (failed == 1) ? "real" : "imag"
+                );
+
+                printf("real:");
+                dump("meow", (float*) fft_meow_a, 0);
+                dump("kiss", (float*) fft_kiss_a, 0);
+                dump("pfft", (float*) fft_pfft_a, 0);
+                dump("fftw", (float*) fft_fftw_a, 0);
+
+                // now j
+                printf("\n\nimag:");
+                dump("meow", (float*) fft_meow_a, 1);
+                dump("kiss", (float*) fft_kiss_a, 1);
+                dump("pfft", (float*) fft_pfft_a, 1);
+                dump("fftw", (float*) fft_fftw_a, 1);
+
+                printf("\n");
+            }
+
+            // Free stuff
+            if (fft_pfft_a) { pffft_aligned_free(fft_pfft_a); }
+            if (fft_fftw_a) { fftwf_free        (fft_fftw_a); }
+
+            if (failed) { break; }
+        }
+
+        // ---------------------------------------------------------------------
+
+        printf("Testing real only <-> fft (skipping slow ffts)...\n");
         fflush(stdout);
 
         for (unsigned i = 4; i < test_data.size(); i += 2)
@@ -744,28 +905,29 @@ int main(int argc, char**)
         {
             for (let N : test_N)
             {
-                var* result = (float*)fftwf_malloc(sizeof(float) * N);
-                var* fft    = (float*)fftwf_malloc(sizeof(float) * N);
+                var* result = (float*) fftwf_malloc(sizeof(float) * N);
+                var* fft    = (float*) fftwf_malloc(sizeof(float) * N);
+                var* copy   = (float*) fftwf_malloc(sizeof(float) * N);
 
-                let plan_fft =
-                    fftwf_plan_r2r_1d
-                    (
-                          N
-                        , speed_data.data()
-                        , fft
-                        , fftwf_r2r_kind::FFTW_R2HC
-                        , FFTW_MEASURE
-                    );
 
-                let plan_ifft =
-                    fftwf_plan_r2r_1d
-                    (
-                          N
-                        , fft
-                        , result
-                        , fftwf_r2r_kind::FFTW_HC2R
-                        , FFTW_MEASURE
-                    );
+                let plan_fft = fftwf_plan_dft_r2c_1d
+                (
+                      N
+                    , copy
+                    , (fftwf_complex*) fft
+                    , FFTW_MEASURE
+                );
+
+                let plan_ifft = fftwf_plan_dft_c2r_1d
+                (
+                      N
+                    , (fftwf_complex*) fft
+                    , result
+                    , FFTW_MEASURE
+                );                
+
+                // creating the plan stomps on the input array.
+                memcpy(copy, speed_data.data(), N * sizeof(float));
 
                 printf("fftw3_fft, %7.2f, kb, ", 0.0f);
 
@@ -774,8 +936,8 @@ int main(int argc, char**)
                 array<chrono::milliseconds, runs> values;
 
                 {
-                    fftwf_execute_r2r(plan_fft, &speed_data[0], fft);
-                    fftwf_execute_r2r(plan_ifft, fft, result);
+                    fftwf_execute(plan_fft);
+                    fftwf_execute(plan_ifft);
 
                     quick_test_64(result, N);
                 }
@@ -786,8 +948,19 @@ int main(int argc, char**)
 
                     for (unsigned offset = 0 ; offset < (size - N); offset+=32)
                     {
-                        fftwf_execute_r2r(plan_fft, &speed_data[offset], fft);
-                        fftwf_execute_r2r(plan_ifft, fft, result);
+                        fftwf_execute_dft_r2c
+                        (
+                              plan_fft
+                            , &speed_data[offset]
+                            , (fftwf_complex*) fft
+                        );
+
+                        fftwf_execute_dft_c2r
+                        (
+                              plan_fft
+                            , (fftwf_complex*) fft
+                            , result
+                        );
                     }
 
                     let end = chrono::high_resolution_clock::now();
