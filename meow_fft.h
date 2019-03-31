@@ -186,7 +186,7 @@ void meow_make_twiddles
         w[i].r = (float) cos(MEOW_TAU * i * ni);
         w[i].j = (float) sin(MEOW_TAU * i * ni);
     }
-};
+}
 
 unsigned meow_make_twiddles_sequential
 (
@@ -256,7 +256,7 @@ unsigned meow_make_twiddles_sequential
     }
 
     return w_count;
-};
+}
 
 Meow_Stage_Info meow_calculate_stages(unsigned n, Meow_FFT_Workset* workset)
 {
