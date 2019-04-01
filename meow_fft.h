@@ -99,7 +99,7 @@ void meow_fft_i
 
 #endif // MEOW_FFT
 
-#ifdef MEOW_FFT_IMPLEMENTAION
+#ifdef MEOW_FFT_IMPLEMENTATION
 
 // Reading List ----------------------------------------------------------------
 //
@@ -186,7 +186,7 @@ void meow_make_twiddles
         w[i].r = (float) cos(MEOW_TAU * i * ni);
         w[i].j = (float) sin(MEOW_TAU * i * ni);
     }
-};
+}
 
 unsigned meow_make_twiddles_sequential
 (
@@ -256,7 +256,7 @@ unsigned meow_make_twiddles_sequential
     }
 
     return w_count;
-};
+}
 
 Meow_Stage_Info meow_calculate_stages(unsigned n, Meow_FFT_Workset* workset)
 {
@@ -435,7 +435,7 @@ unsigned meow_fft_is_slow_real(const Meow_FFT_Workset_Real* workset)
 
 // -----------------------------------------------------------------------------
 
-Meow_FFT_Complex inline meow_add
+inline Meow_FFT_Complex meow_add
 (
       const Meow_FFT_Complex lhs
     , const Meow_FFT_Complex rhs
@@ -450,7 +450,7 @@ Meow_FFT_Complex inline meow_add
     return result;
 }
 
-Meow_FFT_Complex inline meow_sub
+inline Meow_FFT_Complex meow_sub
 (
       const Meow_FFT_Complex lhs
     , const Meow_FFT_Complex rhs
@@ -465,7 +465,7 @@ Meow_FFT_Complex inline meow_sub
     return result;
 }
 
-Meow_FFT_Complex inline meow_negate(const Meow_FFT_Complex lhs)
+inline Meow_FFT_Complex meow_negate(const Meow_FFT_Complex lhs)
 {
     Meow_FFT_Complex result =
     {
@@ -476,7 +476,7 @@ Meow_FFT_Complex inline meow_negate(const Meow_FFT_Complex lhs)
     return result;
 }
 
-Meow_FFT_Complex inline meow_conjugate(const Meow_FFT_Complex lhs)
+inline Meow_FFT_Complex meow_conjugate(const Meow_FFT_Complex lhs)
 {
     Meow_FFT_Complex result =
     {
@@ -487,7 +487,7 @@ Meow_FFT_Complex inline meow_conjugate(const Meow_FFT_Complex lhs)
     return result;
 }
 
-Meow_FFT_Complex inline meow_mul
+inline Meow_FFT_Complex meow_mul
 (
       const Meow_FFT_Complex lhs
     , const Meow_FFT_Complex rhs
@@ -502,7 +502,7 @@ Meow_FFT_Complex inline meow_mul
     return result;
 }
 
-Meow_FFT_Complex inline meow_mul_by_conjugate
+inline Meow_FFT_Complex meow_mul_by_conjugate
 (
       const Meow_FFT_Complex lhs
     , const Meow_FFT_Complex rhs
@@ -517,7 +517,7 @@ Meow_FFT_Complex inline meow_mul_by_conjugate
     return result;
 }
 
-Meow_FFT_Complex inline meow_mul_by_j(const Meow_FFT_Complex lhs)
+inline Meow_FFT_Complex meow_mul_by_j(const Meow_FFT_Complex lhs)
 {
     Meow_FFT_Complex result =
     {
@@ -528,7 +528,7 @@ Meow_FFT_Complex inline meow_mul_by_j(const Meow_FFT_Complex lhs)
     return result;
 }
 
-Meow_FFT_Complex inline meow_mulf
+inline Meow_FFT_Complex meow_mulf
 (
       const Meow_FFT_Complex lhs
     ,       float            rhs
@@ -2095,7 +2095,7 @@ void meow_recursive_fft_mixed_meow_radix_dit_i
 //
 // F(k) = Feven + (Wn(k) * Fodd) // <---- Remember ifft twiddles!, no * 0.5.
 
-void inline meow_mixer
+inline void meow_mixer
 (
       unsigned                N_2
     , Complex* w_2n
@@ -2134,7 +2134,7 @@ void inline meow_mixer
     }
 }
 
-void inline meow_mixer_i
+inline void meow_mixer_i
 (
       unsigned          N_2
     , Complex*          w_2n
