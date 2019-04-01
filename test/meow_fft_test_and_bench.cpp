@@ -14,7 +14,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>
 */
 
-#define MEOW_FFT_IMPLEMENTAION
+#define MEOW_FFT_IMPLEMENTATION
 #include "meow_fft.h"
 
 #include <kiss_fftr.h>
