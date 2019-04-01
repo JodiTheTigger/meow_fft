@@ -2,3 +2,5 @@ a.out
 *.user
 *.autosave
 b-*
+build
+.vscode
