@@ -99,7 +99,7 @@ void meow_fft_i
 
 #endif // MEOW_FFT
 
-#ifdef MEOW_FFT_IMPLEMENTAION
+#ifdef MEOW_FFT_IMPLEMENTATION
 
 // Reading List ----------------------------------------------------------------
 //

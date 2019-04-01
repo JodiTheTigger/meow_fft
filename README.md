@@ -11,7 +11,7 @@ Example
 =======
 
 ```C
-    #define MEOW_FFT_IMPLEMENTAION
+    #define MEOW_FFT_IMPLEMENTATION
     #include <meow_fft.h>
 
     #include <malloc.h>
@@ -55,7 +55,7 @@ Usage
 Since this is a single header library, just make a C file with the lines:
 
 ```C
-    #define MEOW_FFT_IMPLEMENTAION
+    #define MEOW_FFT_IMPLEMENTATION
     #include <meow_fft.h>
 ```
 
