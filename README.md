@@ -21,9 +21,10 @@ Example
         (void) argv;
         (void) argc;
 
-        unsigned          N   = 1024;
-        float*            in  = malloc(sizeof(float) * N);
-        Meow_FFT_Complex* out = malloc(sizeof(Meow_FFT_Complex) * N);
+        unsigned          N    = 1024;
+        float*            in   = malloc(sizeof(float) * N);
+        Meow_FFT_Complex* out  = malloc(sizeof(Meow_FFT_Complex) * N);
+        Meow_FFT_Complex* temp = malloc(sizeof(Meow_FFT_Complex) * N);
 
         // prepare data for "in" array.
         // ...
@@ -40,11 +41,12 @@ Example
         // out[0].r == out[0  ].r
         // out[0].j == out[N/2].r
 
-        meow_fft_real_i(fft_real, in, out);
+        meow_fft_real_i(fft_real, in, temp, out);
         // result is not scaled, need to divide all values by N
 
         free(fft_real);
         free(out);
+        free(temp);
         free(in);
     }
 ```
