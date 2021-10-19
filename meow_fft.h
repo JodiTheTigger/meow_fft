@@ -598,10 +598,10 @@ void meow_dft_n_dit
                 sum.j += jj;
             }
 
-            free(scratch);
             out[index_out] = sum;
         }
     }
+    free(scratch);
 }
 
 // -----------------------------------------------------------------------------
