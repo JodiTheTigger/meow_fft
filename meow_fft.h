@@ -558,7 +558,7 @@ void meow_dft_n_dit
 {
     // Can I do something with the knowledge that n is always odd?
 
-    Meow_FFT_Complex scratch[radix];
+    Meow_FFT_Complex* scratch = malloc(sizeof(Meow_FFT_Complex) * radix);
 
     for (unsigned butterfly = 0; butterfly < count; ++butterfly)
     {
@@ -598,6 +598,7 @@ void meow_dft_n_dit
                 sum.j += jj;
             }
 
+            free(scratch);
             out[index_out] = sum;
         }
     }
