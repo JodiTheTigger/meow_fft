@@ -20,6 +20,21 @@
 #include <stdlib.h>
 // for size_t
 
+// variable length arrays (VLAs) support ISO C99
+// ISO C11 and later, VLA support became optional
+// VLAs are not supported by MSVC C Compilers
+#if (__STDC_VERSION__ < 199901L) || defined(_MSC_VER)
+#define MEOW_FFT_NO_VLA 1
+#elif (__STDC_VERSION__ >= 201112L) && __STDC_NO_VLA__
+#define MEOW_FFT_NO_VLA 1
+#else
+#define MEOW_FFT_NO_VLA 0
+#endif
+
+#if MEOW_FFT_NO_VLA && defined(_MSC_VER)
+#include <malloc.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -558,7 +573,17 @@ void meow_dft_n_dit
 {
     // Can I do something with the knowledge that n is always odd?
 
+#if MEOW_FFT_NO_VLA == 1
+#ifdef _MSC_VER
+    // requires call to _freea at end of scope
+    Meow_FFT_Complex* scratch = (Meow_FFT_Complex*) _malloca(sizeof(Meow_FFT_Complex) * radix);
+#else
+    // do not attempt to free, does not check for stack overflow
+    Meow_FFT_Complex* scratch = (Meow_FFT_Complex*) alloca(sizeof(Meow_FFT_Complex) * radix);
+#endif
+#else
     Meow_FFT_Complex scratch[radix];
+#endif
 
     for (unsigned butterfly = 0; butterfly < count; ++butterfly)
     {
@@ -601,6 +626,9 @@ void meow_dft_n_dit
             out[index_out] = sum;
         }
     }
+#if (MEOW_FFT_NO_VLA == 1) && defined(_MSC_VER)
+    _freea(scratch);
+#endif
 }
 
 // -----------------------------------------------------------------------------
