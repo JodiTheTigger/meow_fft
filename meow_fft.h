@@ -18,7 +18,7 @@
 #define MEOW_FFT
 
 #include <stdlib.h>
-// for size_t
+// for size_t, abort
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,14 +41,14 @@ size_t meow_fft_generate_workset
       int                      N
     , struct Meow_FFT_Workset* workset
 );
-// returns the size of the workset if null is passed.
+// returns the size of the workset if null is passed. 0 if N is invalid.
 
 size_t meow_fft_generate_workset_real
 (
       int                           N
     , struct Meow_FFT_Workset_Real* workset
 );
-// returns the size of the workset if null is passed.
+// returns the size of the workset if null is passed. 0 if N is invalid.
 
 unsigned meow_fft_is_slow     (const struct Meow_FFT_Workset*      workset);
 unsigned meow_fft_is_slow_real(const struct Meow_FFT_Workset_Real* workset);
@@ -396,7 +396,7 @@ size_t meow_fft_generate_workset_real
     if ((N < 4) || (N % 2))
     {
         // Too small or not divisible by two.
-        return -1;
+        return 0;
     }
 
     const unsigned N_2 = N / 2;
@@ -545,6 +545,15 @@ inline Meow_FFT_Complex meow_mulf
 
 // -----------------------------------------------------------------------------
 
+// https://developercommunity.visualstudio.com/t/fatal-error-C1001:-Internal-compiler-err/1390698
+// https://developercommunity.visualstudio.com/t/bug-in-visual-c-2019-and-below-i-think-it-is-relat/1119500
+// https://developercommunity.visualstudio.com/t/optimized-compiler-bug/846597
+#if defined(_MSC_VER) && (_MSC_VER < 1930)
+#define MSVC_BUGFIX volatile
+#else
+#define MSVC_BUGFIX
+#endif
+
 void meow_dft_n_dit
 (
       const Meow_FFT_Complex* w_n
@@ -558,7 +567,13 @@ void meow_dft_n_dit
 {
     // Can I do something with the knowledge that n is always odd?
 
-    Meow_FFT_Complex scratch[radix];
+    if (radix > 2048)
+    {
+        abort();
+        // removing VLAs, so set a hard limit we support.
+    }
+
+    Meow_FFT_Complex scratch[2048];
 
     for (unsigned butterfly = 0; butterfly < count; ++butterfly)
     {
@@ -569,7 +584,7 @@ void meow_dft_n_dit
 
         for (unsigned i = 0 ; i < radix ; ++i)
         {
-            const unsigned  index_out = i * count + butterfly;
+            MSVC_BUGFIX const unsigned index_out = i * count + butterfly;
 
             // W0 is always 1
             Meow_FFT_Complex sum = scratch[0];
