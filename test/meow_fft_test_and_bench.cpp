@@ -354,14 +354,13 @@ int main(int argc, char**)
         let size = test_data.size();
         for (unsigned i = 0; i < size; ++i)
         {
-            for (unsigned i = 0; i < size; ++i)
-            {
-                let two_pi_i = 2.0f * M_PI * i;
+            let two_pi_i = 2.0f * M_PI * i;
 
-                test_data[i] =
-                      1.0f * sin(50.0f * two_pi_i * (1.0f / 799.0f))
-                    + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f));
-            }
+            test_data[i] = (float)
+            (
+                  1.0f * sin(50.0f * two_pi_i * (1.0f / 799.0f))
+                + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f))
+            );
         }
 
         // ---------------------------------------------------------------------
@@ -585,15 +584,17 @@ int main(int argc, char**)
         };
 
         array<float, 44100 * seconds> speed_data;
-        let size = speed_data.size();        
+        let size = speed_data.size();
 
         for (unsigned i = 0; i < size; ++i)
         {
             let two_pi_i = 2.0f * M_PI * i;
 
-            speed_data[i] =
+            speed_data[i] = (float)
+            (
                   1.0f * sin(50.0f * two_pi_i * (1.0f / 799.0f))
-                + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f));
+                + 0.5f * sin(80.0f * two_pi_i * (1.0f / 799.0f))
+            );
         }
 
         printf
@@ -924,7 +925,7 @@ int main(int argc, char**)
                     , (fftwf_complex*) fft
                     , result
                     , FFTW_MEASURE
-                );                
+                );
 
                 // creating the plan stomps on the input array.
                 memcpy(copy, speed_data.data(), N * sizeof(float));

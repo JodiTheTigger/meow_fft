@@ -31,92 +31,71 @@ endif()
 set(meow_fft_bench_fftw3 OFF CACHE BOOL "Use fftw3 in fft benchmark.")
 
 # ----------------------------------------------------------------------------
-# Compiler Info
+# Compiler Setup
 # ----------------------------------------------------------------------------
-include(CheckCXXCompilerFlag)
-
-# Check compiler options
-check_cxx_compiler_flag("-march=native" HAS_NATIVE)
-check_cxx_compiler_flag("-fno-rtti" CAN_DISABLE_RTTI)
-check_cxx_compiler_flag("-fno-exceptions" CAN_DISABLE_EXCEPTIONS)
-check_cxx_compiler_flag("-fsanitize=undefined" SANITIZE_UNDEFINED)
-check_cxx_compiler_flag("-fsanitize=address" SANITIZE_ADDRESS)
-check_cxx_compiler_flag("-fno-omit-frame-pointer" NO_OMIT_FRAME_POINTER)
-
-check_cxx_compiler_flag(-Wall HAS_WALL)
-check_cxx_compiler_flag(-W4 HAS_W4)
-check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
-check_cxx_compiler_flag(-Werror HAS_WERROR)
-check_cxx_compiler_flag(-WX HAS_WERROR_MSVC)
-check_cxx_compiler_flag("/MP" HAS_MULTIPROCESSOR_COMPILE)
-check_cxx_compiler_flag(-Wno-missing-braces HAS_IGNORE_MISSING_BRACES)
-check_cxx_compiler_flag(-Wno-unknown-pragmas HAS_IGNORE_UNKNOWN_PRAGMAS)
-
-
-# ----------------------------------------------------------------------------
-# Prerequisites
-# ----------------------------------------------------------------------------
-
-if (HAS_NATIVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-endif()
-
-if (CAN_DISABLE_RTTI)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-endif()
-
-if (CAN_DISABLE_EXCEPTIONS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-endif()
-
-# prefer W4 over WALL for MSVC at least.
-if (HAS_W4)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4")
-elseif(HAS_WALL)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif()
-
-if (HAS_WEXTRA)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
-endif()
-
-if (HAS_WERROR)
-    set(WARNINGS_AS_ERRORS "${WARNINGS_AS_ERRORS} -Werror")
-endif()
-
-if (HAS_WERROR_MSVC)
-    set(WARNINGS_AS_ERRORS "${WARNINGS_AS_ERRORS} -WX")
-endif()
-
-if (HAS_MULTIPROCESSOR_COMPILE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
-
-if (HAS_IGNORE_MISSING_BRACES)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces")
-endif()
-
-if (HAS_IGNORE_UNKNOWN_PRAGMAS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
-endif()
-
 if (MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4 -MP")
 
-# Debug
-if (SANITIZE_UNDEFINED)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
-endif()
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES)
+else()
+    include(CheckCXXCompilerFlag)
 
-if (SANITIZE_ADDRESS)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-endif()
+    # Check compiler options
+    check_cxx_compiler_flag("-march=native" HAS_NATIVE)
+    check_cxx_compiler_flag("-fno-rtti" CAN_DISABLE_RTTI)
+    check_cxx_compiler_flag("-fno-exceptions" CAN_DISABLE_EXCEPTIONS)
+    check_cxx_compiler_flag("-fsanitize=undefined" SANITIZE_UNDEFINED)
+    check_cxx_compiler_flag("-fsanitize=address" SANITIZE_ADDRESS)
+    check_cxx_compiler_flag("-fno-omit-frame-pointer" NO_OMIT_FRAME_POINTER)
 
-if (NO_OMIT_FRAME_POINTER)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer")
-endif()
+    check_cxx_compiler_flag(-Wall HAS_WALL)
+    check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
+    check_cxx_compiler_flag(-Werror HAS_WERROR)
+    check_cxx_compiler_flag(-Wno-missing-braces HAS_IGNORE_MISSING_BRACES)
+    check_cxx_compiler_flag(-Wno-unknown-pragmas HAS_IGNORE_UNKNOWN_PRAGMAS)
 
+    
+    if(HAS_WALL)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    endif()
+
+    if (HAS_NATIVE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+    endif()
+
+    if (CAN_DISABLE_RTTI)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+    endif()
+
+    if (CAN_DISABLE_EXCEPTIONS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+    endif()
+
+    if (HAS_WEXTRA)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+    endif()
+
+    if (HAS_IGNORE_MISSING_BRACES)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces")
+    endif()
+
+    if (HAS_IGNORE_UNKNOWN_PRAGMAS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
+    endif()
+
+    # Debug
+    if (SANITIZE_UNDEFINED)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
+    endif()
+
+    if (SANITIZE_ADDRESS)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+    endif()
+
+    if (NO_OMIT_FRAME_POINTER)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer")
+    endif()
+endif()
 
 # ----------------------------------------------------------------------------
 # Compiler Features
@@ -161,6 +140,24 @@ endif()
 
 add_library(kiss_fft ${SOURCE_KISS_FFT})
 add_library(pffft_fft ${SOURCE_PFFFT})
+
+if (MSVC)
+    # squelch warnings from 3rd party libraries.
+    target_compile_options(
+        kiss_fft
+        PRIVATE
+            "/wd4244"
+            "/wd4267"
+    )
+
+    target_compile_options(
+        pffft_fft
+        PRIVATE
+            "/wd4244"
+            "/wd4305"
+            "/wd4311"
+    )
+endif()
 
 add_executable(${PROJECT_NAME}_fft_bench ${SOURCE_FFT_BENCH})
 
