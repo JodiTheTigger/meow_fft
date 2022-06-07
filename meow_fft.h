@@ -27,7 +27,11 @@ extern "C" {
 // C-API -----------------------------------------------------------------------
 
 // Can be float, double or long double
-typedef float Meow_Float;
+#ifndef MEOW_FLOAT_TYPE
+#define MEOW_FLOAT_TYPE float
+#endif
+
+typedef MEOW_FLOAT_TYPE Meow_Float;
 
 typedef struct Meow_FFT_Complex
 {
