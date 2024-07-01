@@ -22,9 +22,13 @@ Example
         (void) argc;
 
         unsigned          N    = 1024;
+        unsigned          N_2  = ((N + 1) / 2);
         float*            in   = malloc(sizeof(float) * N);
-        Meow_FFT_Complex* out  = malloc(sizeof(Meow_FFT_Complex) * N);
-        Meow_FFT_Complex* temp = malloc(sizeof(Meow_FFT_Complex) * N);
+        Meow_FFT_Complex* out  = malloc(sizeof(Meow_FFT_Complex) * N_2);
+        Meow_FFT_Complex* temp = malloc(sizeof(Meow_FFT_Complex) * N_2);
+        // Real only FFTs output half the amount of inputs (N/2 rounded up)
+        // Full complex FFTs output all of them (N)
+        // This aaplies to the temp array as well (N/2 rounded up)
 
         // prepare data for "in" array.
         // ...
@@ -129,12 +133,12 @@ FFT Implementation
 ==================
 
 I have implemented a non-scaled, float based decimation in time, mixed-radix,
-out of place, in order result fast fourier tansform with sequentially accessed
-twiddle factors per stage, with seperate forward and reverse functions. It has
+out of place, in order result fast fourier transform with sequentially accessed
+twiddle factors per stage, with separate forward and reverse functions. It has
 custom codelets for radices: 2,3,4,5 and 8, as well as a slow general discrete
 fourier transform (DFT) for all other prime number radices.
 
-Secondly, I have also a real only FFT that uses symetrical based mixing in order
+Secondly, I have also a real only FFT that uses symmetrical based mixing in order
 to do a two for one normal FFT using real data.
 
 I wrote my FFT using kiss_fft, and engineeringproductivitytools as a guide, as
@@ -179,7 +183,7 @@ Measurement Procedure
 ---------------------
 
 The time taken to do an N point FFT every 32 samples of a 5 second 16 bit mono
-44.1Khz buffer (signed 16 bit values) was mesasued. This was then divided by
+44.1Khz buffer (signed 16 bit values) was measured. This was then divided by
 the number of FFT calculations performed to give a value of microseconds per
 FFT. This was done 5 times and the median value was reported.
 
@@ -283,7 +287,7 @@ In a perfect world, doing an FFT then an inverse FFT on the same data, then
 scaling the result by 1/N should result in an identical buffer to the source
 data. However in real life, floating point errors can accumulate.
 
-The first 32 values of the input data were compaired to a scaled result buffer
+The first 32 values of the input data were compared to a scaled result buffer
 and then the difference multiplied by 65536 to simulate what the error would be
 for a 16 bit audio stream using 32 bit floating point FFT maths. The worst error
 of the first 32 values was recorded for each FFT tested for size N.
