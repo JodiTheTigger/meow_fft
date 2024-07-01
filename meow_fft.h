@@ -26,10 +26,17 @@ extern "C" {
 
 // C-API -----------------------------------------------------------------------
 
+// Can be float, double or long double
+#ifndef MEOW_FLOAT_TYPE
+#define MEOW_FLOAT_TYPE float
+#endif
+
+typedef MEOW_FLOAT_TYPE Meow_Float;
+
 typedef struct Meow_FFT_Complex
 {
-    float r;
-    float j;
+    Meow_Float r;
+    Meow_Float j;
 }
 Meow_FFT_Complex;
 
@@ -65,7 +72,7 @@ unsigned meow_fft_is_slow_real(const struct Meow_FFT_Workset_Real* workset);
 void meow_fft_real
 (
       const struct Meow_FFT_Workset_Real* workset
-    , const float*                        in
+    , const Meow_Float*                   in
     , Meow_FFT_Complex*                   out
 );
 
@@ -74,7 +81,7 @@ void meow_fft_real_i
       const struct Meow_FFT_Workset_Real* workset
     , const Meow_FFT_Complex*             in
     , Meow_FFT_Complex*                   temp
-    , float*                              out
+    , Meow_Float*                         out
 );
 
 void meow_fft
@@ -183,8 +190,8 @@ void meow_make_twiddles
     const double ni = 1.0f / n;
     for (unsigned i = 0; i < count; ++i)
     {
-        w[i].r = (float) cos(MEOW_TAU * i * ni);
-        w[i].j = (float) sin(MEOW_TAU * i * ni);
+        w[i].r = (Meow_Float) cos(MEOW_TAU * i * ni);
+        w[i].j = (Meow_Float) sin(MEOW_TAU * i * ni);
     }
 }
 
@@ -243,8 +250,8 @@ unsigned meow_make_twiddles_sequential
                     {
                         const unsigned w_x = i * j * w_mul;
 
-                        w[offset].r = (float) cos(MEOW_TAU * w_x * ni);
-                        w[offset].j = (float) sin(MEOW_TAU * w_x * ni);
+                        w[offset].r = (Meow_Float) cos(MEOW_TAU * w_x * ni);
+                        w[offset].j = (Meow_Float) sin(MEOW_TAU * w_x * ni);
 
                         offset++;
                     }
@@ -531,7 +538,7 @@ inline Meow_FFT_Complex meow_mul_by_j(const Meow_FFT_Complex lhs)
 inline Meow_FFT_Complex meow_mulf
 (
       const Meow_FFT_Complex lhs
-    ,       float            rhs
+    ,       Meow_Float       rhs
 )
 {
     Meow_FFT_Complex result =
@@ -595,8 +602,8 @@ void meow_dft_n_dit
                 Complex        w  = w_n[wi];
                 Complex        in = scratch[j];
 
-                float rr;
-                float jj;
+                Meow_Float rr;
+                Meow_Float jj;
 
                 if (reverse)
                 {
@@ -935,39 +942,39 @@ static void meow_radix_8_dit
     , unsigned                count
 )
 {
-    const float* W = &w_n[0].r;
+    const Meow_Float* W = &w_n[0].r;
 
     {
-        float T3;
-        float T23;
-        float T18;
-        float T38;
-        float T6;
-        float T37;
-        float T21;
-        float T24;
-        float T13;
-        float T49;
-        float T35;
-        float T43;
-        float T10;
-        float T48;
-        float T30;
-        float T42;
+        Meow_Float T3;
+        Meow_Float T23;
+        Meow_Float T18;
+        Meow_Float T38;
+        Meow_Float T6;
+        Meow_Float T37;
+        Meow_Float T21;
+        Meow_Float T24;
+        Meow_Float T13;
+        Meow_Float T49;
+        Meow_Float T35;
+        Meow_Float T43;
+        Meow_Float T10;
+        Meow_Float T48;
+        Meow_Float T30;
+        Meow_Float T42;
         {
-            float T1;
-            float T2;
-            float T19;
-            float T20;
+            Meow_Float T1;
+            Meow_Float T2;
+            Meow_Float T19;
+            Meow_Float T20;
             T1 = out[0].r;
             T2 = out[count * 4].r;
             T3 = T1 + T2;
             T23 = T1 - T2;
             {
-                float T16;
-                float T17;
-                float T4;
-                float T5;
+                Meow_Float T16;
+                Meow_Float T17;
+                Meow_Float T4;
+                Meow_Float T5;
                 T16 = out[0].j;
                 T17 = out[count * 4].j;
                 T18 = T16 + T17;
@@ -982,12 +989,12 @@ static void meow_radix_8_dit
             T21 = T19 + T20;
             T24 = T19 - T20;
             {
-                float T11;
-                float T12;
-                float T31;
-                float T32;
-                float T33;
-                float T34;
+                Meow_Float T11;
+                Meow_Float T12;
+                Meow_Float T31;
+                Meow_Float T32;
+                Meow_Float T33;
+                Meow_Float T34;
                 T11 = out[count * 7].r;
                 T12 = out[count * 3].r;
                 T31 = T11 - T12;
@@ -1000,12 +1007,12 @@ static void meow_radix_8_dit
                 T43 = T31 + T34;
             }
             {
-                float T8;
-                float T9;
-                float T26;
-                float T27;
-                float T28;
-                float T29;
+                Meow_Float T8;
+                Meow_Float T9;
+                Meow_Float T26;
+                Meow_Float T27;
+                Meow_Float T28;
+                Meow_Float T29;
                 T8 = out[count * 1].r;
                 T9 = out[count * 5].r;
                 T26 = T8 - T9;
@@ -1019,10 +1026,10 @@ static void meow_radix_8_dit
             }
         }
         {
-            float T7;
-            float T14;
-            float T51;
-            float T52;
+            Meow_Float T7;
+            Meow_Float T14;
+            Meow_Float T51;
+            Meow_Float T52;
             T7 = T3 + T6;
             T14 = T10 + T13;
             out[count * 4].r = T7 - T14;
@@ -1033,10 +1040,10 @@ static void meow_radix_8_dit
             out[0].j = T51 + T52;
         }
         {
-            float T15;
-            float T22;
-            float T47;
-            float T50;
+            Meow_Float T15;
+            Meow_Float T22;
+            Meow_Float T47;
+            Meow_Float T50;
             T15 = T13 - T10;
             T22 = T18 - T21;
             out[count * 2].j = T15 + T22;
@@ -1047,10 +1054,10 @@ static void meow_radix_8_dit
             out[count * 2].r = T47 + T50;
         }
         {
-            float T25;
-            float T36;
-            float T45;
-            float T46;
+            Meow_Float T25;
+            Meow_Float T36;
+            Meow_Float T45;
+            Meow_Float T46;
             T25 = T23 + T24;
             T36 = MEOW_1_DIV_SQR_2 * (T30 + T35);
             out[count * 5].r = T25 - T36;
@@ -1061,10 +1068,10 @@ static void meow_radix_8_dit
             out[count * 1].j = T45 + T46;
         }
         {
-            float T39;
-            float T40;
-            float T41;
-            float T44;
+            Meow_Float T39;
+            Meow_Float T40;
+            Meow_Float T41;
+            Meow_Float T44;
             T39 = T37 + T38;
             T40 = MEOW_1_DIV_SQR_2 * (T35 - T30);
             out[count * 7].j = T39 - T40;
@@ -1082,34 +1089,34 @@ static void meow_radix_8_dit
         unsigned m;
         for (m = 1; m < count; m = m + 1, out = out + 1, W = W + 14)
         {
-            float T7;
-            float T76;
-            float T43;
-            float T71;
-            float T41;
-            float T65;
-            float T53;
-            float T56;
-            float T18;
-            float T77;
-            float T46;
-            float T68;
-            float T30;
-            float T64;
-            float T48;
-            float T51;
+            Meow_Float T7;
+            Meow_Float T76;
+            Meow_Float T43;
+            Meow_Float T71;
+            Meow_Float T41;
+            Meow_Float T65;
+            Meow_Float T53;
+            Meow_Float T56;
+            Meow_Float T18;
+            Meow_Float T77;
+            Meow_Float T46;
+            Meow_Float T68;
+            Meow_Float T30;
+            Meow_Float T64;
+            Meow_Float T48;
+            Meow_Float T51;
             {
-                float T1;
-                float T70;
-                float T6;
-                float T69;
+                Meow_Float T1;
+                Meow_Float T70;
+                Meow_Float T6;
+                Meow_Float T69;
                 T1 = out[0].r;
                 T70 = out[0].j;
                 {
-                    float T3;
-                    float T5;
-                    float T2;
-                    float T4;
+                    Meow_Float T3;
+                    Meow_Float T5;
+                    Meow_Float T2;
+                    Meow_Float T4;
                     T3 = out[count * 4].r;
                     T5 = out[count * 4].j;
                     T2 = W[6];
@@ -1123,15 +1130,15 @@ static void meow_radix_8_dit
                 T71 = T69 + T70;
             }
             {
-                float T35;
-                float T54;
-                float T40;
-                float T55;
+                Meow_Float T35;
+                Meow_Float T54;
+                Meow_Float T40;
+                Meow_Float T55;
                 {
-                    float T32;
-                    float T34;
-                    float T31;
-                    float T33;
+                    Meow_Float T32;
+                    Meow_Float T34;
+                    Meow_Float T31;
+                    Meow_Float T33;
                     T32 = out[count * 7].r;
                     T34 = out[count * 7].j;
                     T31 = W[12];
@@ -1140,10 +1147,10 @@ static void meow_radix_8_dit
                     T54 = (T31 * T34) - (T33 * T32);
                 }
                 {
-                    float T37;
-                    float T39;
-                    float T36;
-                    float T38;
+                    Meow_Float T37;
+                    Meow_Float T39;
+                    Meow_Float T36;
+                    Meow_Float T38;
                     T37 = out[count * 3].r;
                     T39 = out[count * 3].j;
                     T36 = W[4];
@@ -1157,15 +1164,15 @@ static void meow_radix_8_dit
                 T56 = T54 - T55;
             }
             {
-                float T12;
-                float T44;
-                float T17;
-                float T45;
+                Meow_Float T12;
+                Meow_Float T44;
+                Meow_Float T17;
+                Meow_Float T45;
                 {
-                    float T9;
-                    float T11;
-                    float T8;
-                    float T10;
+                    Meow_Float T9;
+                    Meow_Float T11;
+                    Meow_Float T8;
+                    Meow_Float T10;
                     T9 = out[count * 2].r;
                     T11 = out[count * 2].j;
                     T8 = W[2];
@@ -1174,10 +1181,10 @@ static void meow_radix_8_dit
                     T44 = (T8 * T11) - (T10 * T9);
                 }
                 {
-                    float T14;
-                    float T16;
-                    float T13;
-                    float T15;
+                    Meow_Float T14;
+                    Meow_Float T16;
+                    Meow_Float T13;
+                    Meow_Float T15;
                     T14 = out[count * 6].r;
                     T16 = out[count * 6].j;
                     T13 = W[10];
@@ -1191,15 +1198,15 @@ static void meow_radix_8_dit
                 T68 = T44 + T45;
             }
             {
-                float T24;
-                float T49;
-                float T29;
-                float T50;
+                Meow_Float T24;
+                Meow_Float T49;
+                Meow_Float T29;
+                Meow_Float T50;
                 {
-                    float T21;
-                    float T23;
-                    float T20;
-                    float T22;
+                    Meow_Float T21;
+                    Meow_Float T23;
+                    Meow_Float T20;
+                    Meow_Float T22;
                     T21 = out[count * 1].r;
                     T23 = out[count * 1].j;
                     T20 = W[0];
@@ -1208,10 +1215,10 @@ static void meow_radix_8_dit
                     T49 = (T20 * T23) - (T22 * T21);
                 }
                 {
-                    float T26;
-                    float T28;
-                    float T25;
-                    float T27;
+                    Meow_Float T26;
+                    Meow_Float T28;
+                    Meow_Float T25;
+                    Meow_Float T27;
                     T26 = out[count * 5].r;
                     T28 = out[count * 5].j;
                     T25 = W[8];
@@ -1225,19 +1232,19 @@ static void meow_radix_8_dit
                 T51 = T49 - T50;
             }
             {
-                float T19;
-                float T42;
-                float T73;
-                float T74;
+                Meow_Float T19;
+                Meow_Float T42;
+                Meow_Float T73;
+                Meow_Float T74;
                 T19 = T7 + T18;
                 T42 = T30 + T41;
                 out[count * 4].r = T19 - T42;
                 out[0].r = T19 + T42;
                 {
-                    float T67;
-                    float T72;
-                    float T63;
-                    float T66;
+                    Meow_Float T67;
+                    Meow_Float T72;
+                    Meow_Float T63;
+                    Meow_Float T66;
                     T67 = T64 + T65;
                     T72 = T68 + T71;
                     out[0].j = T67 + T72;
@@ -1252,12 +1259,12 @@ static void meow_radix_8_dit
                 out[count * 2].j = T73 + T74;
                 out[count * 6].j = T74 - T73;
                 {
-                    float T59;
-                    float T78;
-                    float T62;
-                    float T75;
-                    float T60;
-                    float T61;
+                    Meow_Float T59;
+                    Meow_Float T78;
+                    Meow_Float T62;
+                    Meow_Float T75;
+                    Meow_Float T60;
+                    Meow_Float T61;
                     T59 = T43 - T46;
                     T78 = T76 - T77;
                     T60 = T51 - T48;
@@ -1270,12 +1277,12 @@ static void meow_radix_8_dit
                     out[count * 1].j = T75 + T78;
                 }
                 {
-                    float T47;
-                    float T80;
-                    float T58;
-                    float T79;
-                    float T52;
-                    float T57;
+                    Meow_Float T47;
+                    Meow_Float T80;
+                    Meow_Float T58;
+                    Meow_Float T79;
+                    Meow_Float T52;
+                    Meow_Float T57;
                     T47 = T43 + T46;
                     T80 = T77 + T76;
                     T52 = T48 + T51;
@@ -1597,38 +1604,38 @@ static void meow_radix_8_dit_i
     , unsigned                count
 )
 {
-    const float* W = &w_n[0].r;
+    const Meow_Float* W = &w_n[0].r;
     {
-        float T3;
-        float T37;
-        float T18;
-        float T23;
-        float T6;
-        float T24;
-        float T21;
-        float T38;
-        float T13;
-        float T49;
-        float T35;
-        float T43;
-        float T10;
-        float T48;
-        float T30;
-        float T42;
+        Meow_Float T3;
+        Meow_Float T37;
+        Meow_Float T18;
+        Meow_Float T23;
+        Meow_Float T6;
+        Meow_Float T24;
+        Meow_Float T21;
+        Meow_Float T38;
+        Meow_Float T13;
+        Meow_Float T49;
+        Meow_Float T35;
+        Meow_Float T43;
+        Meow_Float T10;
+        Meow_Float T48;
+        Meow_Float T30;
+        Meow_Float T42;
         {
-            float T1;
-            float T2;
-            float T19;
-            float T20;
+            Meow_Float T1;
+            Meow_Float T2;
+            Meow_Float T19;
+            Meow_Float T20;
             T1 = out[0].r;
             T2 = out[count * 4].r;
             T3 = T1 + T2;
             T37 = T1 - T2;
             {
-                float T16;
-                float T17;
-                float T4;
-                float T5;
+                Meow_Float T16;
+                Meow_Float T17;
+                Meow_Float T4;
+                Meow_Float T5;
                 T16 = out[0].j;
                 T17 = out[count * 4].j;
                 T18 = T16 + T17;
@@ -1643,12 +1650,12 @@ static void meow_radix_8_dit_i
             T21 = T19 + T20;
             T38 = T19 - T20;
             {
-                float T11;
-                float T12;
-                float T31;
-                float T32;
-                float T33;
-                float T34;
+                Meow_Float T11;
+                Meow_Float T12;
+                Meow_Float T31;
+                Meow_Float T32;
+                Meow_Float T33;
+                Meow_Float T34;
                 T11 = out[count * 7].r;
                 T12 = out[count * 3].r;
                 T31 = T11 - T12;
@@ -1661,12 +1668,12 @@ static void meow_radix_8_dit_i
                 T43 = T34 - T31;
             }
             {
-                float T8;
-                float T9;
-                float T26;
-                float T27;
-                float T28;
-                float T29;
+                Meow_Float T8;
+                Meow_Float T9;
+                Meow_Float T26;
+                Meow_Float T27;
+                Meow_Float T28;
+                Meow_Float T29;
                 T8 = out[count * 1].r;
                 T9 = out[count * 5].r;
                 T26 = T8 - T9;
@@ -1680,10 +1687,10 @@ static void meow_radix_8_dit_i
             }
         }
         {
-            float T7;
-            float T14;
-            float T47;
-            float T50;
+            Meow_Float T7;
+            Meow_Float T14;
+            Meow_Float T47;
+            Meow_Float T50;
             T7 = T3 + T6;
             T14 = T10 + T13;
             out[count * 4].r = T7 - T14;
@@ -1694,10 +1701,10 @@ static void meow_radix_8_dit_i
             out[0].j = T47 + T50;
         }
         {
-            float T15;
-            float T22;
-            float T51;
-            float T52;
+            Meow_Float T15;
+            Meow_Float T22;
+            Meow_Float T51;
+            Meow_Float T52;
             T15 = T10 - T13;
             T22 = T18 - T21;
             out[count * 2].j = T15 + T22;
@@ -1708,10 +1715,10 @@ static void meow_radix_8_dit_i
             out[count * 2].r = T51 + T52;
         }
         {
-            float T25;
-            float T36;
-            float T45;
-            float T46;
+            Meow_Float T25;
+            Meow_Float T36;
+            Meow_Float T45;
+            Meow_Float T46;
             T25 = T23 - T24;
             T36 = MEOW_1_DIV_SQR_2 * (T30 - T35);
             out[count * 7].j = T25 - T36;
@@ -1722,10 +1729,10 @@ static void meow_radix_8_dit_i
             out[count * 3].r = T45 + T46;
         }
         {
-            float T39;
-            float T40;
-            float T41;
-            float T44;
+            Meow_Float T39;
+            Meow_Float T40;
+            Meow_Float T41;
+            Meow_Float T44;
             T39 = T37 - T38;
             T40 = MEOW_1_DIV_SQR_2 * (T30 + T35);
             out[count * 5].r = T39 - T40;
@@ -1743,34 +1750,34 @@ static void meow_radix_8_dit_i
         unsigned m;
         for (m = 1; m < count; m = m + 1, out = out + 1, W = W + 14)
         {
-            float T7;
-            float T77;
-            float T43;
-            float T71;
-            float T41;
-            float T64;
-            float T53;
-            float T56;
-            float T18;
-            float T76;
-            float T46;
-            float T68;
-            float T30;
-            float T65;
-            float T48;
-            float T51;
+            Meow_Float T7;
+            Meow_Float T77;
+            Meow_Float T43;
+            Meow_Float T71;
+            Meow_Float T41;
+            Meow_Float T64;
+            Meow_Float T53;
+            Meow_Float T56;
+            Meow_Float T18;
+            Meow_Float T76;
+            Meow_Float T46;
+            Meow_Float T68;
+            Meow_Float T30;
+            Meow_Float T65;
+            Meow_Float T48;
+            Meow_Float T51;
             {
-                float T1;
-                float T70;
-                float T6;
-                float T69;
+                Meow_Float T1;
+                Meow_Float T70;
+                Meow_Float T6;
+                Meow_Float T69;
                 T1 = out[0].r;
                 T70 = out[0].j;
                 {
-                    float T3;
-                    float T5;
-                    float T2;
-                    float T4;
+                    Meow_Float T3;
+                    Meow_Float T5;
+                    Meow_Float T2;
+                    Meow_Float T4;
                     T3 = out[count * 4].r;
                     T5 = out[count * 4].j;
                     T2 = W[6];
@@ -1784,15 +1791,15 @@ static void meow_radix_8_dit_i
                 T71 = T69 + T70;
             }
             {
-                float T35;
-                float T54;
-                float T40;
-                float T55;
+                Meow_Float T35;
+                Meow_Float T54;
+                Meow_Float T40;
+                Meow_Float T55;
                 {
-                    float T32;
-                    float T34;
-                    float T31;
-                    float T33;
+                    Meow_Float T32;
+                    Meow_Float T34;
+                    Meow_Float T31;
+                    Meow_Float T33;
                     T32 = out[count * 7].r;
                     T34 = out[count * 7].j;
                     T31 = W[12];
@@ -1801,10 +1808,10 @@ static void meow_radix_8_dit_i
                     T54 = (T33 * T32) + (T31 * T34);
                 }
                 {
-                    float T37;
-                    float T39;
-                    float T36;
-                    float T38;
+                    Meow_Float T37;
+                    Meow_Float T39;
+                    Meow_Float T36;
+                    Meow_Float T38;
                     T37 = out[count * 3].r;
                     T39 = out[count * 3].j;
                     T36 = W[4];
@@ -1818,15 +1825,15 @@ static void meow_radix_8_dit_i
                 T56 = T54 - T55;
             }
             {
-                float T12;
-                float T44;
-                float T17;
-                float T45;
+                Meow_Float T12;
+                Meow_Float T44;
+                Meow_Float T17;
+                Meow_Float T45;
                 {
-                    float T9;
-                    float T11;
-                    float T8;
-                    float T10;
+                    Meow_Float T9;
+                    Meow_Float T11;
+                    Meow_Float T8;
+                    Meow_Float T10;
                     T9 = out[count * 2].r;
                     T11 = out[count * 2].j;
                     T8 = W[2];
@@ -1835,10 +1842,10 @@ static void meow_radix_8_dit_i
                     T44 = (T10 * T9) + (T8 * T11);
                 }
                 {
-                    float T14;
-                    float T16;
-                    float T13;
-                    float T15;
+                    Meow_Float T14;
+                    Meow_Float T16;
+                    Meow_Float T13;
+                    Meow_Float T15;
                     T14 = out[count * 6].r;
                     T16 = out[count * 6].j;
                     T13 = W[10];
@@ -1852,15 +1859,15 @@ static void meow_radix_8_dit_i
                 T68 = T44 + T45;
             }
             {
-                float T24;
-                float T49;
-                float T29;
-                float T50;
+                Meow_Float T24;
+                Meow_Float T49;
+                Meow_Float T29;
+                Meow_Float T50;
                 {
-                    float T21;
-                    float T23;
-                    float T20;
-                    float T22;
+                    Meow_Float T21;
+                    Meow_Float T23;
+                    Meow_Float T20;
+                    Meow_Float T22;
                     T21 = out[count * 1].r;
                     T23 = out[count * 1].j;
                     T20 = W[0];
@@ -1869,10 +1876,10 @@ static void meow_radix_8_dit_i
                     T49 = (T22 * T21) + (T20 * T23);
                 }
                 {
-                    float T26;
-                    float T28;
-                    float T25;
-                    float T27;
+                    Meow_Float T26;
+                    Meow_Float T28;
+                    Meow_Float T25;
+                    Meow_Float T27;
                     T26 = out[count * 5].r;
                     T28 = out[count * 5].j;
                     T25 = W[8];
@@ -1886,19 +1893,19 @@ static void meow_radix_8_dit_i
                 T51 = T49 - T50;
             }
             {
-                float T19;
-                float T42;
-                float T73;
-                float T74;
+                Meow_Float T19;
+                Meow_Float T42;
+                Meow_Float T73;
+                Meow_Float T74;
                 T19 = T7 + T18;
                 T42 = T30 + T41;
                 out[count * 4].r = T19 - T42;
                 out[0].r = T19 + T42;
                 {
-                    float T67;
-                    float T72;
-                    float T63;
-                    float T66;
+                    Meow_Float T67;
+                    Meow_Float T72;
+                    Meow_Float T63;
+                    Meow_Float T66;
                     T67 = T65 + T64;
                     T72 = T68 + T71;
                     out[0].j = T67 + T72;
@@ -1913,12 +1920,12 @@ static void meow_radix_8_dit_i
                 out[count * 2].j = T73 + T74;
                 out[count * 6].j = T74 - T73;
                 {
-                    float T59;
-                    float T78;
-                    float T62;
-                    float T75;
-                    float T60;
-                    float T61;
+                    Meow_Float T59;
+                    Meow_Float T78;
+                    Meow_Float T62;
+                    Meow_Float T75;
+                    Meow_Float T60;
+                    Meow_Float T61;
                     T59 = T43 + T46;
                     T78 = T76 + T77;
                     T60 = T56 - T53;
@@ -1931,12 +1938,12 @@ static void meow_radix_8_dit_i
                     out[count * 1].j = T75 + T78;
                 }
                 {
-                    float T47;
-                    float T80;
-                    float T58;
-                    float T79;
-                    float T52;
-                    float T57;
+                    Meow_Float T47;
+                    Meow_Float T80;
+                    Meow_Float T58;
+                    Meow_Float T79;
+                    Meow_Float T52;
+                    Meow_Float T57;
                     T47 = T43 - T46;
                     T80 = T77 - T76;
                     T52 = T48 - T51;
@@ -2189,7 +2196,7 @@ inline void meow_mixer_i
 void meow_fft_real
 (
       const Meow_FFT_Workset_Real* fft
-    , const float*                 in
+    , const Meow_Float*            in
     , Meow_FFT_Complex*            out
 )
 {
@@ -2223,7 +2230,7 @@ void meow_fft_real_i
       const Meow_FFT_Workset_Real* ifft
     , const Meow_FFT_Complex*      in
     , Meow_FFT_Complex*            temp
-    , float*                       out
+    , Meow_Float*                  out
 )
 {
     const unsigned N_2   = ifft->half.N;
@@ -2292,15 +2299,15 @@ cat << EOF
 static void meow_radix_${1}_dit${3}
 (
       meow_fft_complex* out
-    , const float*  W
-    , unsigned      count
+    , const Meow_Float* W
+    , unsigned          count
 )
 {
 EOF
 
 #// First loop doesn't use twiddles
 ./gen_notw.native -n ${1} -standalone -sign ${2}                               \
-    | sed  's/E /float /g'                                                     \
+    | sed  's/E /Meow_Float /g'                                                \
     | sed '/INT.*/d'                                                           \
     | sed -r 's/r[io]\[(.+)]/out\[\1\].r/g'                                    \
     | sed -r 's/i[io]\[(.+)]/out\[\1\].j/g'                                    \
@@ -2310,7 +2317,7 @@ EOF
     | sed -r 's/FMS\((.+), (.+), (.+)\)/\(\1 * \2\) - \(\3\)/g'                \
     | sed -r 's/FNMA\((.+), (.+), (.+)\)/-\(\1 * \2\) + \(\3\)/g'              \
     | sed -r 's/FNMS\((.+), (.+), (.+)\)/\(\3\) - \(\1 * \2\)/g'               \
-    | sed -r 's/DK\((.+), (.+)\);/static const float \1  = \2;/g'              \
+    | sed -r 's/DK\((.+), (.+)\);/static const Meow_Float \1  = \2;/g'         \
     | head -n -3                                                               \
     | tail -n +9
 
@@ -2319,7 +2326,7 @@ echo "out = out + 1;"
 echo ""
 
 ./gen_twiddle.native -n ${1} -standalone -sign ${2} -dit -with-ms 1            \
-    | sed  's/E /float /g'                                                     \
+    | sed  's/E /Meow_Float /g'                                                \
     | sed 's/INT /unsigned /g'                                                 \
     | sed -r 's/r[io]\[(.+)]/out\[\1\].r/g'                                    \
     | sed -r 's/i[io]\[(.+)]/out\[\1\].j/g'                                    \
